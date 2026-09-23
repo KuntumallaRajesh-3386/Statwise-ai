@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "title": "Python for Data Analysis",
+    "provider": "iGOT",
+    "competencies": ["Python", "Data Visualization"],
+    "difficulty": 2,
+    "duration_hours": 12,
+    "description": "Learn Python programming and data analysis techniques."
+  },
+  {
+    "id": 2,
+    "title": "Advanced Python for Statistical Computing",
+    "provider": "iGOT",
+    "competencies": ["Python", "Statistical Methods"],
+    "difficulty": 4,
+    "duration_hours": 20,
+    "description": "Advanced Python techniques for statistical analysis and automation."
+  },
+  {
+    "id": 3,
+    "title": "Fundamentals of Machine Learning",
+    "provider": "iGOT",
+    "competencies": ["AI and Machine Learning", "Python"],
+    "difficulty": 2,
+    "duration_hours": 15,
+    "description": "Introduction to machine learning concepts and practical applications."
+  },
+  {
+    "id": 4,
+    "title": "Applied Machine Learning for Data Analysis",
+    "provider": "iGOT",
+    "competencies": ["AI and Machine Learning", "Python"],
+    "difficulty": 4,
+    "duration_hours": 24,
+    "description": "Machine learning methods for advanced data analysis."
+  },
+  {
+    "id": 5,
+    "title": "Sampling Methods and Survey Design",
+    "provider": "NSSTA",
+    "competencies": ["Sampling", "Statistical Methods"],
+    "difficulty": 3,
+    "duration_hours": 16,
+    "description": "Sampling methodologies and survey design for official statistics."
+  },
+  {
+    "id": 6,
+    "title": "SQL for Data Management",
+    "provider": "iGOT",
+    "competencies": ["SQL"],
+    "difficulty": 2,
+    "duration_hours": 10,
+    "description": "SQL fundamentals for querying and managing structured data."
+  },
+  {
+    "id": 7,
+    "title": "Geospatial Analysis with GIS",
+    "provider": "NSSTA",
+    "competencies": ["GIS", "Data Visualization"],
+    "difficulty": 3,
+    "duration_hours": 18,
+    "description": "Use GIS techniques for spatial analysis and visualization."
+  },
+  {
+    "id": 8,
+    "title": "Data Visualization for Official Statistics",
+    "provider": "iGOT",
+    "competencies": ["Data Visualization", "Statistical Methods"],
+    "difficulty": 2,
+    "duration_hours": 8,
+    "description": "Design effective statistical visualizations and dashboards."
+  }
+]
