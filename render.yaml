@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: statwise-ai-api
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir backend
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: STATWISE_SECRET_KEY
+        generateValue: true
+
+  - type: web
+    name: statwise-ai-web
+    runtime: static
+    branch: main
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: statwise-ai-api
+          envVarKey: RENDER_EXTERNAL_URL
