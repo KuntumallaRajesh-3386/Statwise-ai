@@ -1,19 +1,11 @@
-import faiss
-import numpy as np
-from sentence_transformers import SentenceTransformer
-
-
-# Embedding model
-model = SentenceTransformer("all-MiniLM-L6-v2")
+import math
+import re
+from collections import Counter
 
 
 class VectorStore:
 
     def __init__(self):
-        # all-MiniLM-L6-v2 produces 384-dimensional embeddings
-        self.index = faiss.IndexFlatL2(384)
-
-        # Stores the original document chunks
         self.chunks = []
 
     # -----------------------------------------
@@ -24,30 +16,9 @@ class VectorStore:
         if not chunks:
             return
 
-        texts = [
-            chunk["text"]
-            for chunk in chunks
-            if chunk.get("text")
-        ]
-
-        if not texts:
-            return
-
-        embeddings = model.encode(
-            texts,
-            convert_to_numpy=True
-        )
-
-        embeddings = np.asarray(
-            embeddings,
-            dtype="float32"
-        )
-
-        self.index.add(embeddings)
-
         self.chunks.extend(
             [
-                chunk
+                dict(chunk)
                 for chunk in chunks
                 if chunk.get("text")
             ]
@@ -63,50 +34,69 @@ class VectorStore:
         max_distance=1.80
     ):
 
-        # No documents indexed
         if not self.chunks:
             return []
 
-        query_embedding = model.encode(
-            [query],
-            convert_to_numpy=True
+        query_terms = Counter(re.findall(r"\w+", query.lower()))
+        if not query_terms:
+            return []
+
+        document_terms = [
+            Counter(re.findall(r"\w+", chunk["text"].lower()))
+            for chunk in self.chunks
+        ]
+        document_count = len(document_terms)
+        average_length = sum(
+            sum(terms.values()) for terms in document_terms
+        ) / document_count
+        document_frequencies = Counter(
+            term
+            for terms in document_terms
+            for term in terms
         )
 
-        query_embedding = np.asarray(
-            query_embedding,
-            dtype="float32"
-        )
-
-        # Don't ask FAISS for more items than exist
-        search_k = min(k, len(self.chunks))
-
-        distances, indices = self.index.search(
-            query_embedding,
-            search_k
-        )
-
-        results = []
-
-        for distance, idx in zip(
-            distances[0],
-            indices[0]
+        ranked_chunks = []
+        for index, (chunk, terms) in enumerate(
+            zip(self.chunks, document_terms)
         ):
+            document_length = sum(terms.values())
+            score = 0.0
 
-            if idx < 0 or idx >= len(self.chunks):
+            for term, query_frequency in query_terms.items():
+                term_frequency = terms.get(term, 0)
+                if not term_frequency:
+                    continue
+
+                document_frequency = document_frequencies[term]
+                inverse_frequency = math.log(
+                    1 + (document_count - document_frequency + 0.5)
+                    / (document_frequency + 0.5)
+                )
+                length_normalization = (
+                    1 - 0.75 + 0.75 * document_length / average_length
+                )
+                score += (
+                    inverse_frequency
+                    * term_frequency
+                    * 2.5
+                    / (term_frequency + 1.5 * length_normalization)
+                    * query_frequency
+                )
+
+            if score <= 0:
                 continue
 
-            # Ignore weak semantic matches
-            if float(distance) > max_distance:
-                continue
+            distance = 1 / (1 + score)
+            if distance <= max_distance:
+                result = dict(chunk)
+                result["distance"] = distance
+                ranked_chunks.append((score, index, result))
 
-            chunk = dict(self.chunks[idx])
-
-            # Useful for debugging and ranking
-            chunk["distance"] = float(distance)
-
-            results.append(chunk)
-
-        return results
+        ranked_chunks.sort(key=lambda item: (-item[0], item[1]))
+        return [
+            item[2]
+            for item in ranked_chunks[:max(0, k)]
+        ]
 
 
 # Global vector store

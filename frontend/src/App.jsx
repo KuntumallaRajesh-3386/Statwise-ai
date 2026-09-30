@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
-import AssessmentStudio from "./pages/AssessmentStudio";
+import AssessmentStudio from "./pages/assessmentStudio.jsx";
 
 const API_URL =
   import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
